@@ -2,7 +2,7 @@ const {request, response} = require('express');
 const {validationResult} = require('express-validator');
 
 // el next ejecuta el middleware
-const fieldValidate = (req = request, res = response, next) => {
+const validateFields = (req = request, res = response, next) => {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -18,5 +18,5 @@ const fieldValidate = (req = request, res = response, next) => {
 }
 
 module.exports = {
-    fieldValidate,
+    validateFields,
 }

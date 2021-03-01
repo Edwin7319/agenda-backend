@@ -1,25 +1,122 @@
 const {response, request} = require('express');
+const bcrypt = require('bcryptjs');
+const User = require('../../../models/user-model');
+const {generateToken} = require('../../../helpers/jwt');
 
-const createUser = (req = request, res = response) => {
+const createUser = async (req = request, res = response) => {
 
-    const user = req.body;
+    const {email, password} = req.body;
+    try {
 
-    res.json({
-        ok: true,
-        user,
-    });
+        const userFind = await User.findOne({email});
+
+        if (userFind) {
+            return res.status(400)
+                .json({
+                    ok: false,
+                    mensaje: 'El correo ya se encuentra registrado',
+                });
+        }
+
+        const createUser = new User(req.body);
+
+        // encriptar
+        const salt = await bcrypt.genSaltSync(10);
+        createUser.password = await bcrypt.hash(password, salt);
+
+        const resultSave = await createUser.save();
+
+        // generar token
+        const token = await generateToken(resultSave._id, resultSave.name);
+
+        res.status(201)
+            .json({
+                ok: true,
+                resultSave,
+                token,
+            });
+    } catch (e) {
+        console.error({
+            mensaje: 'Error al guardar usuario',
+            error: e,
+        });
+        res.status(500)
+            .json({
+                ok: false,
+                mensaje: 'Error al guardar usuario',
+            });
+    }
 }
 
-const loginUser = (req = request, res = response) => {
-    res.json({
-        ok: true,
-    });
+const loginUser = async (req = request, res = response) => {
+
+    const {email, password} = req.body;
+
+    try {
+        const user = await User.findOne({email});
+
+        if (!user) {
+            return res.status(400)
+                .json({
+                    ok: false,
+                    mensaje: 'No existe un usuario relacionado al correo',
+                });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+
+        if (!isMatch) {
+            return res.status(400)
+                .json({
+                    ok: false,
+                    mensaje: 'Contraseña no coincide',
+                });
+        }
+
+        // generar token
+        const token = await generateToken(user._id, user.name);
+
+        res.json({
+            ok: true,
+            user,
+            token,
+        });
+    } catch (e) {
+        console.error({
+            mensaje: 'Error al loguear usuario',
+            error: e,
+        });
+        res.status(500)
+            .json({
+                ok: false,
+                mensaje: 'Error al loguear usuario',
+            });
+    }
 }
 
-const renewToken = (req = request, res = response) => {
-    res.json({
-        ok: true,
-    });
+const renewToken = async (req = request, res = response) => {
+    try {
+        const {user} = req;
+
+        // generar token
+        const token = await generateToken(user._id, user.name);
+        res.status(200)
+            .json({
+                ok: true,
+                user,
+                token,
+            });
+    } catch (e) {
+        console.error({
+            mensaje: 'Error al renovar token',
+            error: e,
+        });
+        res.status(500)
+            .json({
+                ok: false,
+                mensaje: 'Error al renovar token',
+            });
+    }
 }
 
 
