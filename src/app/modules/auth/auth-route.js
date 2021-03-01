@@ -1,21 +1,21 @@
 const {Router} = require('express');
 const router = Router();
-const {validateFields} = require('../../../middlewares/validate-fields');
-const {validateJwt} = require('../../../middlewares/validate-jwt');
+const {validateFields} = require('../../middlewares/validate-fields');
+const {validateJwt} = require('../../middlewares/validate-jwt');
 const {
     createUser,
     loginUser,
     renewToken,
-} = require('../controllers/auth-controller');
+} = require('./auth-controller');
 const {
-    CREATE_MIDDLEWARE,
-    LOGIN_MIDDLEWARE,
-} = require('../validation/auth-middleware');
+    CREATE_USER_VALIDATION,
+    LOGIN_USER_VALIDATION,
+} = require('./validation/auth-mw-validation');
 
 router.post(
     '/create',
     [
-        ...CREATE_MIDDLEWARE,
+        ...CREATE_USER_VALIDATION,
         validateFields,
     ],
     createUser,
@@ -24,7 +24,7 @@ router.post(
 router.post(
     '/login',
     [
-        ...LOGIN_MIDDLEWARE,
+        ...LOGIN_USER_VALIDATION,
         validateFields
     ],
     loginUser,

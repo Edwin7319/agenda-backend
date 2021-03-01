@@ -1,7 +1,7 @@
 const {response, request} = require('express');
 const bcrypt = require('bcryptjs');
-const User = require('../../../models/user-model');
-const {generateToken} = require('../../../helpers/jwt');
+const User = require('../../models/user-model');
+const {generateToken} = require('../../helpers/jwt');
 
 const createUser = async (req = request, res = response) => {
 
@@ -18,21 +18,21 @@ const createUser = async (req = request, res = response) => {
                 });
         }
 
-        const createUser = new User(req.body);
+        const newUser = new User(req.body);
 
         // encriptar
         const salt = await bcrypt.genSaltSync(10);
-        createUser.password = await bcrypt.hash(password, salt);
+        newUser.password = await bcrypt.hash(password, salt);
 
-        const resultSave = await createUser.save();
+        const userSaved = await newUser.save();
 
         // generar token
-        const token = await generateToken(resultSave._id, resultSave.name);
+        const token = await generateToken(userSaved._id, userSaved.name);
 
         res.status(201)
             .json({
                 ok: true,
-                resultSave,
+                userSaved,
                 token,
             });
     } catch (e) {

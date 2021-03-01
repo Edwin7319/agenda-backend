@@ -24,7 +24,8 @@ app.use(cors());
 app.use(express.json());
 
 // rutas
-app.use('/auth', require('./modules/auth/routes/auth-route'));
+app.use('/auth', require('./modules/auth/auth-route'));
+app.use('/event', require('./modules/event/event-route'));
 
 // escuchar
 app.listen(process.env.PORT, () => {
