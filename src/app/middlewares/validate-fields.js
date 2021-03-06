@@ -6,6 +6,10 @@ const validateFields = (req = request, res = response, next) => {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+        console.error({
+            mensaje: 'Campos no validos',
+            errors: errors.mapped(),
+        });
         return res
             .status(400)
             .json({

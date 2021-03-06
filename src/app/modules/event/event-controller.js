@@ -3,6 +3,7 @@ const Event = require('./../../models/event-model');
 
 const create = async (req = request, res = response) => {
 
+    console.log(req);
     const {_id: user} = req.user;
     const event = req.body
 
@@ -39,7 +40,6 @@ const update = async (req = request, res = response) => {
     const {_id: user} = req.user;
     try {
         const event = await Event.findById(id);
-
         if (!event) {
             return res.status(404)
                 .json({
@@ -48,13 +48,22 @@ const update = async (req = request, res = response) => {
                 });
         }
 
+
+        if ( event.user.toString() !== user.toString() ) {
+            return res.status(401).json({
+                ok: false,
+                mensaje: 'No tiene privilegio de editar este evento'
+            });
+        }
+
         const newEvent = {
-            ...req.body,
+            ...req.body.event,
             user,
         }
 
         const eventUpdated = await Event.findByIdAndUpdate(id, newEvent, {new: true})
             .populate('user');
+
         return res.status(200)
             .json({
                 ok: true,
@@ -62,7 +71,7 @@ const update = async (req = request, res = response) => {
             });
 
     } catch (e) {
-        console.erro({
+        console.error({
             mensaje: 'Error al buscar todos los eventos',
             error: e,
         });
@@ -85,8 +94,8 @@ const findAll = async (req = request, res = response) => {
             });
 
     } catch (e) {
-        console.erro({
-            mensaje: 'Error al buscar todos los eventos',
+        console.error({
+            mensaje: 'Error al buscar todos los evento',
             error: e,
         });
         return res.status(500)
@@ -109,7 +118,7 @@ const findById = async (req = request, res = response) => {
             });
 
     } catch (e) {
-        console.erro({
+        console.error({
             mensaje: 'Error al buscar evento por id',
             error: e,
         });
@@ -123,6 +132,7 @@ const findById = async (req = request, res = response) => {
 
 const deleteOne = async (req = request, res = response) => {
     const {id} = req.params;
+    const {_id: user} = req.user;
 
     try {
         const event = await Event.findById(id);
@@ -134,6 +144,14 @@ const deleteOne = async (req = request, res = response) => {
                     mensaje: 'No se encontro el evento a eliminar'
                 });
         }
+
+        if ( event.user.toString() !== user.toString() ) {
+            return res.status(401).json({
+                ok: false,
+                mensaje: 'No tiene privilegio de eliminar este evento'
+            });
+        }
+
 
         await Event.findByIdAndDelete(id)
         return res.status(200)

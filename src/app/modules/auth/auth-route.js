@@ -13,7 +13,7 @@ const {
 } = require('./validation/auth-mw-validation');
 
 router.post(
-    '/create',
+    '/register',
     [
         ...CREATE_USER_VALIDATION,
         validateFields,
