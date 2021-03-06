@@ -97,7 +97,6 @@ const loginUser = async (req = request, res = response) => {
 const renewToken = async (req = request, res = response) => {
     try {
         const {user} = req;
-
         // generar token
         const token = await generateToken(user._id, user.name);
         res.status(200)
