@@ -6,7 +6,7 @@ const isValidDate = (date) => {
         return false;
     }
 
-    return moment(date, 'DD/MM/YYYY').isValid();
+    return moment(date, 'YYYY-MM-DD').isValid();
 }
 
 module.exports = {isValidDate};
