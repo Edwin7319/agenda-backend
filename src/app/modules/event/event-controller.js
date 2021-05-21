@@ -3,7 +3,6 @@ const Event = require('./../../models/event-model');
 
 const create = async (req = request, res = response) => {
 
-    console.log(req);
     const {_id: user} = req.user;
     const event = req.body
 
